@@ -1,7 +1,8 @@
 package org.example.filters
 
 abstract class Scheme(
-    open val factor: Double,
-    open val bias: Double,
-    open val matrix: Array<DoubleArray>
+    val name: String,
+    val factor: Double,
+    val bias: Double,
+    val matrix: Array<DoubleArray>,
 )
