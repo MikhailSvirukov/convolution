@@ -1,16 +1,38 @@
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.example.filters.Id
 import org.example.filters.Scheme
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.nio.file.Files
-import java.util.Comparator
 import java.util.stream.Stream
 import kotlin.test.assertContentEquals
 
 class ComputationTest {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("imageFilterCases")
+    fun `id filter keeps source image unchanged`(imagePath: String) =
+        runBlocking {
+            val image = IOManager.loadRgbImage(imagePath)
+            val output = Computation.sequential(image, Id())
+            val outputRow = Computation.withCoroutinesRows(image, Id(), null)
+            val outputCol = Computation.withCoroutinesColumn(image, Id(), null)
+            val outputSeg = Computation.withCoroutinesSegments(image, Id(), NUMBJOBS)
+            val outputChunk =
+                Computation.withCoroutinesChunk(
+                    image,
+                    Id(),
+                    NUMBJOBS,
+                    NUMBJOBS,
+                )
+            assertContentEquals(image.input, output, "image: $imagePath sequentially")
+            assertContentEquals(image.input, outputRow, "image: $imagePath by rows")
+            assertContentEquals(image.input, outputCol, "image: $imagePath by columns")
+            assertContentEquals(image.input, outputSeg, "image: $imagePath by segments")
+            assertContentEquals(image.input, outputChunk, "image: $imagePath by chunks")
+        }
+
     @ParameterizedTest(name = "{0} x {1}")
     @MethodSource("imageFilterCases")
     fun `withCoroutinesSegments matches sequential output`(
@@ -20,9 +42,7 @@ class ComputationTest {
         val image = IOManager.loadRgbImage(imagePath)
         val reference = Computation.sequential(image, filter)
 
-        Computation.dispatcher = Dispatchers.Unconfined
-
-        val segments = Computation.withCoroutinesSegments(image, filter, 8)
+        val segments = Computation.withCoroutinesSegments(image, filter, NUMBJOBS)
 
         assertContentEquals(reference, segments)
     }
@@ -35,8 +55,6 @@ class ComputationTest {
     ) = runBlocking {
         val image = IOManager.loadRgbImage(imagePath)
         val reference = Computation.sequential(image, filter)
-
-        Computation.dispatcher = Dispatchers.Unconfined
 
         val columns = Computation.withCoroutinesColumn(image, filter, null)
 
@@ -51,7 +69,6 @@ class ComputationTest {
     ) = runBlocking {
         val image = IOManager.loadRgbImage(imagePath)
         val reference = Computation.sequential(image, filter)
-        Computation.dispatcher = Dispatchers.Unconfined
 
         val rows = Computation.withCoroutinesRows(image, filter, null)
 
@@ -67,33 +84,29 @@ class ComputationTest {
         val image = IOManager.loadRgbImage(imagePath)
         val reference = Computation.sequential(image, filter)
 
-        Computation.dispatcher = Dispatchers.Unconfined
-
-        val chunks = Computation.withCoroutinesChunk(image, filter, 4, 4)
+        val chunks = Computation.withCoroutinesChunk(image, filter, NUMBJOBS, NUMBJOBS)
 
         assertContentEquals(reference, chunks)
     }
 
     companion object {
-        @JvmStatic
-        fun imageFilterCases(): Stream<Arguments> {
-            val images =
-                Files.list(File("img/test").toPath()).use { paths ->
-                    paths
-                        .filter { Files.isRegularFile(it) }
-                        .filter { it.fileName.toString().endsWith(".jpg") }
-                        .sorted(Comparator.comparing { it.fileName.toString() })
-                        .map { it.toString() }
-                        .toList()
-                }
+        private const val NUMBJOBS = 8
 
-            return images
+        fun imagePaths(): List<String> =
+            Files.list(File("img/test").toPath()).use { paths ->
+                paths
+                    .map { it.toString() }
+                    .toList()
+            }
+
+        @JvmStatic
+        fun imageFilterCases(): Stream<Arguments> =
+            imagePaths()
                 .stream()
                 .flatMap { imagePath ->
                     Scheme.all.stream().map { filter ->
                         Arguments.of(imagePath, filter)
                     }
                 }
-        }
     }
 }

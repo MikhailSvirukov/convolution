@@ -11,7 +11,6 @@ class LoadedImage(
 )
 
 object IOManager {
-
     init {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
     }
