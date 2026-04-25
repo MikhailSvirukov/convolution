@@ -20,6 +20,7 @@ object IOManager {
     init {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
     }
+
     fun loadRgbImage(name: String): LoadedImage {
         val src = Imgcodecs.imread(name)
         val width = src.cols()
@@ -32,10 +33,14 @@ object IOManager {
         return LoadedImage(width, height, channels, input)
     }
 
-    fun saveRgbImage(outName: String, width: Int, height: Int, output: ByteArray) {
+    fun saveRgbImage(
+        outName: String,
+        width: Int,
+        height: Int,
+        output: ByteArray,
+    ) {
         val result = Mat(height, width, CvType.CV_8UC3)
         result.put(0, 0, output)
         Imgcodecs.imwrite(outName, result)
     }
-
 }
