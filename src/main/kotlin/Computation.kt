@@ -36,8 +36,6 @@ object Computation {
         filter: Scheme,
         numJobs: Int,
     ) {
-        require(numJobs > 0)
-
         val image = IOManager.loadRgbImage(name)
 
         val output = ByteArray(image.width * image.height * image.channels)
@@ -72,7 +70,6 @@ object Computation {
         numJobs: Int?,
     ) {
         val image = IOManager.loadRgbImage(name)
-        require((numJobs ?: image.width) > 0)
 
         val output = ByteArray(image.width * image.height * image.channels)
 
@@ -109,7 +106,6 @@ object Computation {
         numJobs: Int?,
     ) {
         val image = IOManager.loadRgbImage(name)
-        require((numJobs ?: image.height) > 0)
 
         val output = ByteArray(image.width * image.height * image.channels)
 
@@ -146,8 +142,6 @@ object Computation {
         numJobsX: Int,
         numJobsY: Int,
     ) {
-        require(numJobsX > 0 && numJobsY > 0)
-
         val image = IOManager.loadRgbImage(name)
         val output = ByteArray(image.width * image.height * image.channels)
 
