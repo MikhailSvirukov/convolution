@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.3.20"
+    application
 }
 
 group = "org.example"
@@ -11,6 +12,8 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation(files("libs/opencv-490.jar"))
 }
 
 kotlin {
