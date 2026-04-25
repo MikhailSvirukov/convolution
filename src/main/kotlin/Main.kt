@@ -6,7 +6,6 @@ import kotlinx.cli.ExperimentalCli
 import kotlinx.cli.Subcommand
 import kotlinx.cli.optional
 import kotlinx.coroutines.runBlocking
-import org.example.Computation
 import org.example.filters.Scheme
 import java.io.File
 
@@ -82,6 +81,5 @@ fun main(args: Array<String>) {
         CoroutinesSegment(),
         CoroutinesChunks(),
     )
-
     parser.parse(args)
 }

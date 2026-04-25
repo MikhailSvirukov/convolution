@@ -1,5 +1,3 @@
-package org.example
-
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.opencv.core.Core
@@ -15,7 +13,6 @@ class LoadedImage(
 )
 
 object IOManager {
-    val scope = CoroutineScope(Dispatchers.IO)
 
     init {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME)

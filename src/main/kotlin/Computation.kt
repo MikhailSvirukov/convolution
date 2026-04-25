@@ -1,5 +1,3 @@
-package org.example
-
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -7,6 +5,11 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.example.filters.Scheme
 import kotlin.math.min
+
+val outName = { name: String, filter: String ->
+    val (left, right) = name.split(".", limit = 2)
+    left + "_" + filter + "." + right
+}
 
 object Computation {
     var dispatcher: CoroutineDispatcher = Dispatchers.Default
@@ -27,8 +30,7 @@ object Computation {
             output,
             filter,
         )
-
-        IOManager.saveRgbImage(name + "_" + filter.name, image.width, image.height, output)
+        IOManager.saveRgbImage(outName.invoke(name, filter.name), image.width, image.height, output)
     }
 
     suspend fun withCoroutinesSegments(
@@ -61,7 +63,7 @@ object Computation {
             jobs.joinAll()
         }
 
-        IOManager.saveRgbImage(name + "_" + filter.name, image.width, image.height, output)
+        IOManager.saveRgbImage(outName.invoke(name, filter.name), image.width, image.height, output)
     }
 
     suspend fun withCoroutinesColumn(
@@ -97,7 +99,7 @@ object Computation {
             jobsList.joinAll()
         }
 
-        IOManager.saveRgbImage(name + "_" + filter.name, image.width, image.height, output)
+        IOManager.saveRgbImage(outName.invoke(name, filter.name), image.width, image.height, output)
     }
 
     suspend fun withCoroutinesRows(
@@ -133,7 +135,7 @@ object Computation {
             jobsList.joinAll()
         }
 
-        IOManager.saveRgbImage(name + "_" + filter.name, image.width, image.height, output)
+        IOManager.saveRgbImage(outName.invoke(name, filter.name), image.width, image.height, output)
     }
 
     suspend fun withCoroutinesChunk(
@@ -177,6 +179,6 @@ object Computation {
             jobs.joinAll()
         }
 
-        IOManager.saveRgbImage(name + "_" + filter.name, image.width, image.height, output)
+        IOManager.saveRgbImage(outName.invoke(name, filter.name), image.width, image.height, output)
     }
 }
