@@ -15,11 +15,9 @@ object Computation {
     var dispatcher: CoroutineDispatcher = Dispatchers.Default
 
     fun sequential(
-        name: String,
+        image: LoadedImage,
         filter: Scheme,
-    ) {
-        val image = IOManager.loadRgbImage(name)
-
+    ): ByteArray {
         val output = ByteArray(image.width * image.height * image.channels)
 
         Convolution.applyRange(
@@ -30,16 +28,14 @@ object Computation {
             output,
             filter,
         )
-        IOManager.saveRgbImage(outName.invoke(name, filter.name), image.width, image.height, output)
+        return output
     }
 
     suspend fun withCoroutinesSegments(
-        name: String,
+        image: LoadedImage,
         filter: Scheme,
         numJobs: Int,
-    ) {
-        val image = IOManager.loadRgbImage(name)
-
+    ): ByteArray {
         val output = ByteArray(image.width * image.height * image.channels)
         val total = image.width * image.height
         val batchSize = (total + numJobs - 1) / numJobs
@@ -62,17 +58,14 @@ object Computation {
 
             jobs.joinAll()
         }
-
-        IOManager.saveRgbImage(outName.invoke(name, filter.name), image.width, image.height, output)
+        return output
     }
 
     suspend fun withCoroutinesColumn(
-        name: String,
+        image: LoadedImage,
         filter: Scheme,
         numJobs: Int?,
-    ) {
-        val image = IOManager.loadRgbImage(name)
-
+    ): ByteArray {
         val output = ByteArray(image.width * image.height * image.channels)
 
         val jobs = numJobs ?: image.width
@@ -98,17 +91,14 @@ object Computation {
 
             jobsList.joinAll()
         }
-
-        IOManager.saveRgbImage(outName.invoke(name, filter.name), image.width, image.height, output)
+        return output
     }
 
     suspend fun withCoroutinesRows(
-        name: String,
+        image: LoadedImage,
         filter: Scheme,
         numJobs: Int?,
-    ) {
-        val image = IOManager.loadRgbImage(name)
-
+    ): ByteArray {
         val output = ByteArray(image.width * image.height * image.channels)
 
         val jobs = numJobs ?: image.height
@@ -134,17 +124,15 @@ object Computation {
 
             jobsList.joinAll()
         }
-
-        IOManager.saveRgbImage(outName.invoke(name, filter.name), image.width, image.height, output)
+        return output
     }
 
     suspend fun withCoroutinesChunk(
-        name: String,
+        image: LoadedImage,
         filter: Scheme,
         numJobsX: Int,
         numJobsY: Int,
-    ) {
-        val image = IOManager.loadRgbImage(name)
+    ): ByteArray {
         val output = ByteArray(image.width * image.height * image.channels)
 
         val batchSizeX = (image.width + numJobsX - 1) / numJobsX
@@ -178,7 +166,6 @@ object Computation {
 
             jobs.joinAll()
         }
-
-        IOManager.saveRgbImage(outName.invoke(name, filter.name), image.width, image.height, output)
+        return output
     }
 }

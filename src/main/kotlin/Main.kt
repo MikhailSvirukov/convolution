@@ -16,6 +16,8 @@ val schemeArgType =
         variantToString = { it.name },
     )
 
+val executor = Executor()
+
 fun main(args: Array<String>) {
     class CoroutinesChunks : Subcommand("coroutines_chunks", "Run coroutine chunk computation") {
         private val filename by argument(ArgType.String, "path to file")
@@ -25,7 +27,7 @@ fun main(args: Array<String>) {
 
         override fun execute() {
             require(File(filename).exists()) { "File does not exist: $filename" }
-            runBlocking { Computation.withCoroutinesChunk(filename, filter, tasksX, tasksY) }
+            runBlocking { executor.withCoroutinesChunk(filename, filter, tasksX, tasksY) }
         }
     }
 
@@ -35,7 +37,7 @@ fun main(args: Array<String>) {
 
         override fun execute() {
             require(File(filename).exists()) { "File does not exist: $filename" }
-            Computation.sequential(filename, filter)
+            executor.sequential(filename, filter)
         }
     }
 
@@ -46,7 +48,7 @@ fun main(args: Array<String>) {
 
         override fun execute() {
             require(File(filename).exists()) { "File does not exist: $filename" }
-            runBlocking { Computation.withCoroutinesRows(filename, filter, tasks) }
+            runBlocking { executor.withCoroutinesRows(filename, filter, tasks) }
         }
     }
 
@@ -57,7 +59,7 @@ fun main(args: Array<String>) {
 
         override fun execute() {
             require(File(filename).exists()) { "File does not exist: $filename" }
-            runBlocking { Computation.withCoroutinesColumn(filename, filter, tasks) }
+            runBlocking { executor.withCoroutinesColumn(filename, filter, tasks) }
         }
     }
 
@@ -68,7 +70,7 @@ fun main(args: Array<String>) {
 
         override fun execute() {
             require(File(filename).exists()) { "File does not exist: $filename" }
-            runBlocking { Computation.withCoroutinesSegments(filename, filter, tasks) }
+            runBlocking { executor.withCoroutinesSegments(filename, filter, tasks) }
         }
     }
 
