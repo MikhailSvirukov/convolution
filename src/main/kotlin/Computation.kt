@@ -2,6 +2,7 @@ package org.example
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.example.filters.Scheme
 import kotlin.math.min
@@ -18,7 +19,7 @@ object Computation {
         val output = ByteArray(image.width * image.height * image.channels)
 
         Convolution.applyRange(
-            0..image.width * image.height,
+            0 until image.width * image.height,
             image.width,
             image.height,
             image.input,
@@ -26,108 +27,29 @@ object Computation {
             filter,
         )
 
-        IOManager.saveRgbImage(name + "_" + filter.name, image.height, image.height, output)
+        IOManager.saveRgbImage(name + "_" + filter.name, image.width, image.height, output)
     }
 
-    fun withCoroutinesSegments(
+    suspend fun withCoroutinesSegments(
         name: String,
         filter: Scheme,
         numJobs: Int,
     ) {
+        require(numJobs > 0)
+
         val image = IOManager.loadRgbImage(name)
 
         val output = ByteArray(image.width * image.height * image.channels)
         val total = image.width * image.height
-        val batchSize = total / numJobs
+        val batchSize = (total + numJobs - 1) / numJobs
 
-        for (i in 0 until numJobs) {
-            scope.launch {
-                Convolution.applyRange(
-                    i * batchSize..min((i + 1) * batchSize, total),
-                    image.width,
-                    image.height,
-                    image.input,
-                    output,
-                    filter,
-                )
-            }
-        }
-
-        IOManager.saveRgbImage(name + "_" + filter.name, image.height, image.height, output)
-    }
-
-    fun withCoroutinesColumn(
-        name: String,
-        filter: Scheme,
-        numJobs: Int?,
-    ) {
-        val image = IOManager.loadRgbImage(name)
-        val output = ByteArray(image.width * image.height * image.channels)
-
-        val tasks = image.width / (numJobs ?: 1)
-
-        for (i in 0 until (numJobs ?: image.width)) {
-            scope.launch {
-                Convolution.applyChunk(
-                    0 until image.width,
-                    i * tasks until min((i + 1) * tasks, image.height),
-                    image.width,
-                    image.height,
-                    image.input,
-                    output,
-                    filter,
-                )
-            }
-        }
-
-        IOManager.saveRgbImage(name + "_" + filter.name, image.height, image.height, output)
-    }
-
-    fun withCoroutinesRows(
-        name: String,
-        filter: Scheme,
-        numJobs: Int?,
-    ) {
-        val image = IOManager.loadRgbImage(name)
-        val output = ByteArray(image.width * image.height * image.channels)
-
-        val tasks = image.height / (numJobs ?: 1)
-
-        for (i in 0 until (numJobs ?: image.height)) {
-            scope.launch {
-                Convolution.applyChunk(
-                    i * tasks until min((i + 1) * tasks, image.width),
-                    0 until image.height,
-                    image.width,
-                    image.height,
-                    image.input,
-                    output,
-                    filter,
-                )
-            }
-        }
-
-        IOManager.saveRgbImage(name + "_" + filter.name, image.height, image.height, output)
-    }
-
-    fun withCoroutinesChunk(
-        name: String,
-        filter: Scheme,
-        numJobsX: Int,
-        numJobsY: Int,
-    ) {
-        val image = IOManager.loadRgbImage(name)
-        val output = ByteArray(image.width * image.height * image.channels)
-
-        val batchSizeX = image.width / numJobsX
-        val batchSizeY = image.height / numJobsX
-
-        for (i in 0 until numJobsX) {
-            for (j in 0 until numJobsY) {
-                scope.launch {
-                    Convolution.applyChunk(
-                        i * batchSizeX until min((i + 1) * batchSizeX, image.width),
-                        j * batchSizeY until min((j + 1) * batchSizeY, image.height),
+        val jobs =
+            (0 until numJobs).map { i ->
+                scope.launch(Dispatchers.Default) {
+                    val start = i * batchSize
+                    val end = min(start + batchSize, total)
+                    Convolution.applyRange(
+                        start until end,
                         image.width,
                         image.height,
                         image.input,
@@ -136,8 +58,123 @@ object Computation {
                     )
                 }
             }
-        }
 
-        IOManager.saveRgbImage(name + "_" + filter.name, image.height, image.height, output)
+        jobs.joinAll()
+
+        IOManager.saveRgbImage(name + "_" + filter.name, image.width, image.height, output)
+    }
+
+    suspend fun withCoroutinesColumn(
+        name: String,
+        filter: Scheme,
+        numJobs: Int?,
+    ) {
+        val image = IOManager.loadRgbImage(name)
+        require((numJobs ?: image.width) > 0)
+
+        val output = ByteArray(image.width * image.height * image.channels)
+
+        val jobs = numJobs ?: image.width
+        val tasks = (image.width + jobs - 1) / jobs
+
+        val jobsList =
+            (0 until jobs).map { i ->
+                scope.launch(Dispatchers.Default) {
+                    val start = i * tasks
+                    val end = min(start + tasks, image.width)
+                    Convolution.applyChunk(
+                        start until end,
+                        0 until image.height,
+                        image.width,
+                        image.height,
+                        image.input,
+                        output,
+                        filter,
+                    )
+                }
+            }
+
+        jobsList.joinAll()
+
+        IOManager.saveRgbImage(name + "_" + filter.name, image.width, image.height, output)
+    }
+
+    suspend fun withCoroutinesRows(
+        name: String,
+        filter: Scheme,
+        numJobs: Int?,
+    ) {
+        val image = IOManager.loadRgbImage(name)
+        require((numJobs ?: image.height) > 0)
+
+        val output = ByteArray(image.width * image.height * image.channels)
+
+        val jobs = numJobs ?: image.height
+        val tasks = (image.height + jobs - 1) / jobs
+
+        val jobsList =
+            (0 until jobs).map { i ->
+                scope.launch(Dispatchers.Default) {
+                    val start = i * tasks
+                    val end = min(start + tasks, image.height)
+                    Convolution.applyChunk(
+                        0 until image.width,
+                        start until end,
+                        image.width,
+                        image.height,
+                        image.input,
+                        output,
+                        filter,
+                    )
+                }
+            }
+
+        jobsList.joinAll()
+
+        IOManager.saveRgbImage(name + "_" + filter.name, image.width, image.height, output)
+    }
+
+    suspend fun withCoroutinesChunk(
+        name: String,
+        filter: Scheme,
+        numJobsX: Int,
+        numJobsY: Int,
+    ) {
+        require(numJobsX > 0 && numJobsY > 0)
+
+        val image = IOManager.loadRgbImage(name)
+        val output = ByteArray(image.width * image.height * image.channels)
+
+        val batchSizeX = (image.width + numJobsX - 1) / numJobsX
+        val batchSizeY = (image.height + numJobsY - 1) / numJobsY
+
+        val jobs =
+            buildList {
+                for (i in 0 until numJobsX) {
+                    for (j in 0 until numJobsY) {
+                        add(
+                            scope.launch(Dispatchers.Default) {
+                                val startX = i * batchSizeX
+                                val endX = min((i + 1) * batchSizeX, image.width)
+                                val startY = j * batchSizeY
+                                val endY = min((j + 1) * batchSizeY, image.height)
+                                Convolution.applyChunk(
+                                    startX until endX,
+                                    startY until endY,
+                                    image.width,
+                                    image.height,
+                                    image.input,
+                                    output,
+                                    filter,
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+
+        jobs.joinAll()
+
+        IOManager.saveRgbImage(name + "_" + filter.name, image.width, image.height, output)
     }
 }
