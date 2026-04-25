@@ -13,7 +13,11 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation(files("libs/opencv-490.jar"))
+    implementation(files("lib/opencv-490.jar"))
+}
+
+tasks.withType<JavaExec> {
+    jvmArgs("-Djava.library.path=libs")
 }
 
 kotlin {
@@ -22,4 +26,8 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+application {
+    mainClass.set("MainKt")
 }
