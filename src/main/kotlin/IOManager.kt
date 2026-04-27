@@ -1,6 +1,6 @@
 package org.example
 
-import org.opencv.core.Core
+// import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
@@ -14,7 +14,7 @@ class LoadedImage(
 
 object IOManager {
     init {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
+        System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME)
     }
 
     fun loadRgbImage(name: String): LoadedImage {

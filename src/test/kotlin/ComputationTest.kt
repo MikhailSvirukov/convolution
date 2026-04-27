@@ -15,6 +15,10 @@ import kotlin.random.nextInt
 import kotlin.test.assertContentEquals
 
 class ComputationTest {
+    init {
+        System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME)
+    }
+
     @ParameterizedTest(name = "{0}")
     @MethodSource("imageFilterCases")
     fun `id filter keeps source image unchanged`(imagePath: String) =
