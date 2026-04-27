@@ -1,6 +1,6 @@
 package org.example
 
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.example.filters.Id
 import org.example.filters.Scheme
 import org.example.filters.allSchemes
@@ -18,7 +18,7 @@ class ComputationTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("imageFilterCases")
     fun `id filter keeps source image unchanged`(imagePath: String) =
-        runTest {
+        runBlocking {
             val image = IOManager.loadRgbImage(imagePath)
             val output = Computation.sequential(image, Id())
             val outputRow = Computation.withCoroutinesRows(image, Id(), null)
@@ -43,7 +43,7 @@ class ComputationTest {
     fun `withCoroutinesSegments matches sequential output`(
         imagePath: String,
         filter: Scheme,
-    ) = runTest {
+    ) = runBlocking {
         val image = IOManager.loadRgbImage(imagePath)
         val reference = Computation.sequential(image, filter)
 
@@ -57,7 +57,7 @@ class ComputationTest {
     fun `withCoroutinesColumn matches sequential output`(
         imagePath: String,
         filter: Scheme,
-    ) = runTest {
+    ) = runBlocking {
         val image = IOManager.loadRgbImage(imagePath)
         val reference = Computation.sequential(image, filter)
 
@@ -71,7 +71,7 @@ class ComputationTest {
     fun `withCoroutinesRows matches sequential output`(
         imagePath: String,
         filter: Scheme,
-    ) = runTest {
+    ) = runBlocking {
         val image = IOManager.loadRgbImage(imagePath)
         val reference = Computation.sequential(image, filter)
 
@@ -85,7 +85,7 @@ class ComputationTest {
     fun `withCoroutinesChunk matches sequential output`(
         imagePath: String,
         filter: Scheme,
-    ) = runTest {
+    ) = runBlocking {
         val image = IOManager.loadRgbImage(imagePath)
         val reference = Computation.sequential(image, filter)
 
