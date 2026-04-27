@@ -142,7 +142,7 @@ object Computation {
         val jobsy = numJobsY ?: image.height
 
         val batchSizeX = (image.width + jobsx - 1) / jobsx
-        val batchSizeY = (image.height + jobsy - 1)  / jobsy
+        val batchSizeY = (image.height + jobsy - 1) / jobsy
 
         coroutineScope {
             val jobs =

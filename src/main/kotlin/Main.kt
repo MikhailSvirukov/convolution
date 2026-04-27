@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalCli::class)
+
 package org.example
 
 import kotlinx.cli.ArgParser
@@ -7,13 +8,14 @@ import kotlinx.cli.ExperimentalCli
 import kotlinx.cli.Subcommand
 import kotlinx.cli.optional
 import kotlinx.coroutines.runBlocking
-import org.example.filters.Scheme
+import org.example.filters.allSchemes
+import org.example.filters.mapNameToScheme
 import java.io.File
 
 val schemeArgType =
     ArgType.Choice(
-        choices = Scheme.all,
-        toVariant = { Scheme.fromKey(it) },
+        choices = allSchemes(),
+        toVariant = {mapNameToScheme(it)},
         variantToString = { it.name },
     )
 

@@ -5,6 +5,8 @@ import org.example.Computation
 import org.example.IOManager
 import org.example.LoadedImage
 import org.example.filters.Scheme
+import org.example.filters.allSchemes
+import org.example.filters.mapNameToScheme
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Fork
@@ -28,6 +30,8 @@ const val JOBS = 8
 @Measurement(iterations = 8)
 @Fork(1)
 open class SingleRun {
+    var schemes = allSchemes()
+
     @Param("img/bench/snow.jpg", "img/bench/ktulhu.jpg")
     lateinit var img: String
 
@@ -39,7 +43,7 @@ open class SingleRun {
 
     @Setup(Level.Trial)
     fun setup() {
-        scheme = Scheme.fromKey(schemeName)
+        scheme = mapNameToScheme(schemeName)
         loadedImage = IOManager.loadRgbImage(img)
     }
 
@@ -49,27 +53,26 @@ open class SingleRun {
     }
 
     @Benchmark
-    fun coroutinesRows() = runBlocking {
-        Computation.withCoroutinesRows(loadedImage, scheme, null)
-    }
+    fun coroutinesRows() =
+        runBlocking {
+            Computation.withCoroutinesRows(loadedImage, scheme, null)
+        }
 
     @Benchmark
-    fun coroutinesColumns() = runBlocking {
-        Computation.withCoroutinesColumn(loadedImage, scheme, null)
-    }
+    fun coroutinesColumns() =
+        runBlocking {
+            Computation.withCoroutinesColumn(loadedImage, scheme, null)
+        }
 
     @Benchmark
-    fun coroutinesSegment() = runBlocking {
-        Computation.withCoroutinesSegments(loadedImage, scheme, JOBS)
-    }
+    fun coroutinesSegment() =
+        runBlocking {
+            Computation.withCoroutinesSegments(loadedImage, scheme, JOBS)
+        }
 
     @Benchmark
-    fun coroutinesChunks() = runBlocking {
-        Computation.withCoroutinesChunk(loadedImage, scheme, JOBS, JOBS)
-    }
-
-    @Benchmark
-    fun coroutinesByPixel() = runBlocking {
-        Computation.withCoroutinesSegments(loadedImage, scheme, null)
-    }
+    fun coroutinesChunks() =
+        runBlocking {
+            Computation.withCoroutinesChunk(loadedImage, scheme, JOBS, JOBS)
+        }
 }
