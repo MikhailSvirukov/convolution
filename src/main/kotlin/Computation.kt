@@ -36,14 +36,15 @@ object Computation {
     suspend fun withCoroutinesSegments(
         image: LoadedImage,
         filter: Scheme,
-        numJobs: Int,
+        numJobs: Int?,
     ): ByteArray {
         val output = ByteArray(image.width * image.height * image.channels)
         val total = image.width * image.height
-        val batchSize = (total + numJobs - 1) / numJobs
+        val jobs = numJobs ?: total
+        val batchSize = (total + jobs - 1) / jobs
         coroutineScope {
             val jobs =
-                (0 until numJobs).map { i ->
+                (0 until jobs).map { i ->
                     launch(dispatcher) {
                         val start = i * batchSize
                         val end = min(start + batchSize, total)
@@ -132,19 +133,22 @@ object Computation {
     suspend fun withCoroutinesChunk(
         image: LoadedImage,
         filter: Scheme,
-        numJobsX: Int,
-        numJobsY: Int,
+        numJobsX: Int?,
+        numJobsY: Int?,
     ): ByteArray {
         val output = ByteArray(image.width * image.height * image.channels)
 
-        val batchSizeX = (image.width + numJobsX - 1) / numJobsX
-        val batchSizeY = (image.height + numJobsY - 1) / numJobsY
+        val jobsx = numJobsX ?: image.width
+        val jobsy = numJobsY ?: image.height
+
+        val batchSizeX = (image.width + jobsx - 1) / jobsx
+        val batchSizeY = (image.height + jobsy - 1)  / jobsy
 
         coroutineScope {
             val jobs =
                 buildList {
-                    for (i in 0 until numJobsX) {
-                        for (j in 0 until numJobsY) {
+                    for (i in 0 until jobsx) {
+                        for (j in 0 until jobsy) {
                             add(
                                 launch(dispatcher) {
                                     val startX = i * batchSizeX

@@ -67,4 +67,9 @@ open class SingleRun {
     fun coroutinesChunks() = runBlocking {
         Computation.withCoroutinesChunk(loadedImage, scheme, JOBS, JOBS)
     }
+
+    @Benchmark
+    fun coroutinesByPixel() = runBlocking {
+        Computation.withCoroutinesSegments(loadedImage, scheme, null)
+    }
 }
