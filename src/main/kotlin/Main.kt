@@ -15,7 +15,7 @@ import java.io.File
 val schemeArgType =
     ArgType.Choice(
         choices = allSchemes(),
-        toVariant = {mapNameToScheme(it)},
+        toVariant = { mapNameToScheme(it) },
         variantToString = { it.name },
     )
 

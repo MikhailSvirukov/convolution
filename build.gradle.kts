@@ -38,12 +38,14 @@ dependencies {
     add("benchImplementation", "org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.16")
 }
 
+val libPath = "$rootDir/libs"
+
 tasks.withType<JavaExec> {
-    jvmArgs("-Djava.library.path=libs")
+    jvmArgs("-Djava.library.path=$libPath")
 }
 
 tasks.withType<Test> {
-    jvmArgs("-Djava.library.path=libs")
+    jvmArgs("-Djava.library.path=$libPath")
     useJUnitPlatform()
 }
 
@@ -67,6 +69,6 @@ benchmark {
 
 tasks.configureEach {
     if (name == "benchBenchmark" && this is JavaExec) {
-        jvmArgs("-Djava.library.path=libs")
+        jvmArgs("-Djava.library.path=$libPath")
     }
 }
