@@ -25,8 +25,8 @@ fun main(args: Array<String>) {
     class CoroutinesChunks : Subcommand("coroutines_chunks", "Run coroutine chunk computation") {
         private val filename by argument(ArgType.String, "path to file")
         private val filter by argument(schemeArgType, "filter type")
-        private val tasksX by argument(ArgType.Int, "number of tasks to split for rows")
-        private val tasksY by argument(ArgType.Int, "number of tasks to split for columns")
+        private val tasksX by argument(ArgType.Int, "number of tasks to split for rows").optional()
+        private val tasksY by argument(ArgType.Int, "number of tasks to split for columns").optional()
 
         override fun execute() {
             require(File(filename).exists()) { "File does not exist: $filename" }
@@ -69,7 +69,7 @@ fun main(args: Array<String>) {
     class CoroutinesSegment : Subcommand("coroutines_segment", "Run coroutine segment computation") {
         private val filename by argument(ArgType.String, "path to file")
         private val filter by argument(schemeArgType, "filter type")
-        private val tasks by argument(ArgType.Int, "number of tasks to split file")
+        private val tasks by argument(ArgType.Int, "number of tasks to split file").optional()
 
         override fun execute() {
             require(File(filename).exists()) { "File does not exist: $filename" }

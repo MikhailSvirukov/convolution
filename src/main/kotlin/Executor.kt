@@ -15,7 +15,7 @@ class Executor {
     suspend fun withCoroutinesSegments(
         name: String,
         filter: Scheme,
-        numJobs: Int,
+        numJobs: Int?,
     ) {
         val image = IOManager.loadRgbImage(name)
         val output = Computation.withCoroutinesSegments(image, filter, numJobs)
@@ -45,8 +45,8 @@ class Executor {
     suspend fun withCoroutinesChunk(
         name: String,
         filter: Scheme,
-        numJobsX: Int,
-        numJobsY: Int,
+        numJobsX: Int?,
+        numJobsY: Int?,
     ) {
         val image = IOManager.loadRgbImage(name)
         val output = Computation.withCoroutinesChunk(image, filter, numJobsX, numJobsY)
