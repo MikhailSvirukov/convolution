@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalCli::class)
+package org.example
 
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType

@@ -1,3 +1,5 @@
+package org.example
+
 import kotlinx.coroutines.test.runTest
 import org.example.filters.Id
 import org.example.filters.Scheme

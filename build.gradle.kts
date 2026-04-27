@@ -1,9 +1,7 @@
-import me.champeau.jmh.JMHTask
-
 plugins {
     kotlin("jvm") version "2.3.20"
-    id("me.champeau.jmh") version "0.7.3"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
+    id("org.jetbrains.kotlinx.benchmark") version "0.4.13"
     application
 }
 
@@ -21,7 +19,22 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.16")
+}
+
+sourceSets {
+    create("bench") {
+        java.srcDir("src/bench/kotlin")
+        compileClasspath += sourceSets["main"].output
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations.named("benchImplementation") {
+    extendsFrom(configurations["implementation"])
+}
+
+dependencies {
+    add("benchImplementation", "org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.16")
 }
 
 tasks.withType<JavaExec> {
@@ -32,7 +45,6 @@ tasks.withType<Test> {
     jvmArgs("-Djava.library.path=libs")
     useJUnitPlatform()
 }
-
 
 application {
     mainClass.set("org.example.MainKt")
@@ -46,6 +58,14 @@ ktlint {
     version = "1.4.0"
 }
 
-jmh {
-    jvmArgs.set(listOf("-Djava.library.path=libs"))
+benchmark {
+    targets {
+        register("bench")
+    }
+}
+
+tasks.configureEach {
+    if (name == "benchBenchmark" && this is JavaExec) {
+        jvmArgs("-Djava.library.path=libs")
+    }
 }

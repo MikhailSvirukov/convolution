@@ -1,8 +1,9 @@
 package org.example.benchmark
 
-import Executor
-import LoadedImage
 import kotlinx.coroutines.runBlocking
+import org.example.Computation
+import org.example.IOManager
+import org.example.LoadedImage
 import org.example.filters.Scheme
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
@@ -24,18 +25,17 @@ const val JOBS = 8
 @BenchmarkMode(Mode.SingleShotTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 3)
-@Measurement(iterations = 10)
+@Measurement(iterations = 8)
 @Fork(1)
 open class SingleRun {
-    val executor = Executor()
-//"excessive_edges", "sharpen1", "emboss",
-    @Param("img/bench/bird.png")
+    @Param("img/bench/snow.jpg", "img/bench/ktulhu.jpg")
     lateinit var img: String
-    @Param("blur")
+
+    @Param("blur", "excessive_edges")
     private lateinit var schemeName: String
 
-    lateinit var scheme: Scheme
-    lateinit var loadedImage: LoadedImage
+    private lateinit var scheme: Scheme
+    private lateinit var loadedImage: LoadedImage
 
     @Setup(Level.Trial)
     fun setup() {
@@ -57,10 +57,12 @@ open class SingleRun {
     fun coroutinesColumns() = runBlocking {
         Computation.withCoroutinesColumn(loadedImage, scheme, null)
     }
+
     @Benchmark
     fun coroutinesSegment() = runBlocking {
         Computation.withCoroutinesSegments(loadedImage, scheme, JOBS)
     }
+
     @Benchmark
     fun coroutinesChunks() = runBlocking {
         Computation.withCoroutinesChunk(loadedImage, scheme, JOBS, JOBS)
