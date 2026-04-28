@@ -58,10 +58,31 @@
 
 ## Benchmarks
 
-![Benchmark Results - Ktulhu](img/graphics/plot_ktulhu.png)
-
+### Single Image: snow.jpg (8160×6144)
 
 ![Benchmark Results - Snow](img/graphics/plot_snow.png)
+
+| Algorithm | Time (ms) | Error (ms) |
+|-----------|-----------|-----------|
+| coroutinesByPixel | 84608 | 3054 |
+| coroutinesChunks | 552 | 10 |
+| coroutinesColumns | 591 | 6 |
+| coroutinesRows | 532 | 7 |
+| coroutinesSegment | 641 | 15 |
+| sequential | 2546 | 56 |
+
+### Multiple Images: img/test (5 images)
+
+![Benchmark Results - MultIO](img/graphics/mult_io.png)
+
+| Algorithm | Time (ms) | Error (ms) |
+|-----------|-----------|-----------|
+| coroutinesByPixel | 26148 | 2232 |
+| coroutinesChunks | 207 | 4 |
+| coroutinesColumns | 233 | 9 |
+| coroutinesRows | 255 | 9 |
+| coroutinesSegment | 281 | 13 |
+| sequential | 1499 | 24 |
 
 ## Conclusions
 
