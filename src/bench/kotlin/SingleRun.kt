@@ -28,21 +28,20 @@ const val JOBS = 8
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 3)
 @Measurement(iterations = 8)
-@Fork(1)
 open class SingleRun {
     var schemes = allSchemes()
 
-    @Param("img/bench/snow.jpg", "img/bench/ktulhu.jpg")
+    @Param("img/bench/snow.jpg", "img/bench/ktulhu.jpg", "img/test")
     lateinit var img: String
 
-    @Param("blur", "excessive_edges")
+    @Param("blur")
     private lateinit var schemeName: String
 
     private lateinit var scheme: Scheme
     private lateinit var loadedImage: LoadedImage
 
     @Setup(Level.Trial)
-    fun setup() {
+    suspend fun setup() {
         scheme = mapNameToScheme(schemeName)
         loadedImage = IOManager.loadRgbImage(img)
     }

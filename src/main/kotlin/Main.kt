@@ -7,7 +7,8 @@ import kotlinx.cli.ArgType
 import kotlinx.cli.ExperimentalCli
 import kotlinx.cli.Subcommand
 import kotlinx.cli.optional
-import kotlinx.coroutines.runBlocking
+import org.example.executors.Executor
+import org.example.executors.ExecutorManager
 import org.example.filters.allSchemes
 import org.example.filters.mapNameToScheme
 import java.io.File
@@ -29,8 +30,14 @@ fun main(args: Array<String>) {
         private val tasksY by argument(ArgType.Int, "number of tasks to split for columns").optional()
 
         override fun execute() {
-            require(File(filename).exists()) { "File does not exist: $filename" }
-            runBlocking { executor.withCoroutinesChunk(filename, filter, tasksX, tasksY) }
+            val file = File(filename)
+            require(file.exists()) { "File does not exist: $filename" }
+            if (file.isFile) {
+                ExecutorManager.executeWithCoroutine(filename, filter, tasksX, tasksY) { name, scheme, x, y -> executor.withCoroutinesChunk(name, scheme, x, y) }
+            } else {
+                val files = file.listFiles()?.map { it.absolutePath } ?: emptyList()
+                ExecutorManager.executeWithCoroutine(files, filter, tasksX, tasksY) { name, scheme, x, y -> executor.withCoroutinesChunk(name, scheme, x, y) }
+            }
         }
     }
 
@@ -39,8 +46,14 @@ fun main(args: Array<String>) {
         private val filter by argument(schemeArgType, "filter type")
 
         override fun execute() {
-            require(File(filename).exists()) { "File does not exist: $filename" }
-            executor.sequential(filename, filter)
+            val file = File(filename)
+            require(file.exists()) { "File does not exist: $filename" }
+            if (file.isFile) {
+                ExecutorManager.executeSequentially(filename, filter) { name, scheme -> executor.sequential(name, scheme) }
+            } else {
+                val files = file.listFiles()?.map { it.absolutePath } ?: emptyList()
+                ExecutorManager.executeSequentially(files, filter) { name, scheme -> executor.sequential(name, scheme) }
+            }
         }
     }
 
@@ -50,8 +63,14 @@ fun main(args: Array<String>) {
         private val tasks by argument(ArgType.Int, "number of tasks to split file").optional()
 
         override fun execute() {
-            require(File(filename).exists()) { "File does not exist: $filename" }
-            runBlocking { executor.withCoroutinesRows(filename, filter, tasks) }
+            val file = File(filename)
+            require(file.exists()) { "File does not exist: $filename" }
+            if (file.isFile) {
+                ExecutorManager.executeWithCoroutine(filename, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesRows(name, scheme, jobs) }
+            } else {
+                val files = file.listFiles()?.map { it.absolutePath } ?: emptyList()
+                ExecutorManager.executeWithCoroutine(files, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesRows(name, scheme, jobs) }
+            }
         }
     }
 
@@ -61,8 +80,14 @@ fun main(args: Array<String>) {
         private val tasks by argument(ArgType.Int, "number of tasks to split file").optional()
 
         override fun execute() {
-            require(File(filename).exists()) { "File does not exist: $filename" }
-            runBlocking { executor.withCoroutinesColumn(filename, filter, tasks) }
+            val file = File(filename)
+            require(file.exists()) { "File does not exist: $filename" }
+            if (file.isFile) {
+                ExecutorManager.executeWithCoroutine(filename, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesColumn(name, scheme, jobs) }
+            } else {
+                val files = file.listFiles()?.map { it.absolutePath } ?: emptyList()
+                ExecutorManager.executeWithCoroutine(files, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesColumn(name, scheme, jobs) }
+            }
         }
     }
 
@@ -72,8 +97,14 @@ fun main(args: Array<String>) {
         private val tasks by argument(ArgType.Int, "number of tasks to split file").optional()
 
         override fun execute() {
-            require(File(filename).exists()) { "File does not exist: $filename" }
-            runBlocking { executor.withCoroutinesSegments(filename, filter, tasks) }
+            val file = File(filename)
+            require(file.exists()) { "File does not exist: $filename" }
+            if (file.isFile) {
+                ExecutorManager.executeWithCoroutine(filename, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesSegments(name, scheme, jobs) }
+            } else {
+                val files = file.listFiles()?.map { it.absolutePath } ?: emptyList()
+                ExecutorManager.executeWithCoroutine(files, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesSegments(name, scheme, jobs) }
+            }
         }
     }
 
