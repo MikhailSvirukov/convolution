@@ -19,12 +19,6 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Run ktlint
-        run: ./gradlew ktlintCheck
-
       - name: Run build
         run: ./gradlew build
-
-      - name: Run tests
-        run: ./gradlew test
 
