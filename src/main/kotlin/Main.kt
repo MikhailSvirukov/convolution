@@ -33,10 +33,20 @@ fun main(args: Array<String>) {
             val file = File(filename)
             require(file.exists()) { "File does not exist: $filename" }
             if (file.isFile) {
-                ExecutorManager.executeWithCoroutine(filename, filter, tasksX, tasksY) { name, scheme, x, y -> executor.withCoroutinesChunk(name, scheme, x, y) }
+                ExecutorManager.executeWithCoroutine(
+                    filename,
+                    filter,
+                    tasksX,
+                    tasksY,
+                ) { name, scheme, x, y -> executor.withCoroutinesChunk(name, scheme, x, y) }
             } else {
                 val files = file.listFiles()?.map { it.absolutePath } ?: emptyList()
-                ExecutorManager.executeWithCoroutine(files, filter, tasksX, tasksY) { name, scheme, x, y -> executor.withCoroutinesChunk(name, scheme, x, y) }
+                ExecutorManager.executeWithCoroutine(
+                    files,
+                    filter,
+                    tasksX,
+                    tasksY,
+                ) { name, scheme, x, y -> executor.withCoroutinesChunk(name, scheme, x, y) }
             }
         }
     }
@@ -66,10 +76,18 @@ fun main(args: Array<String>) {
             val file = File(filename)
             require(file.exists()) { "File does not exist: $filename" }
             if (file.isFile) {
-                ExecutorManager.executeWithCoroutine(filename, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesRows(name, scheme, jobs) }
+                ExecutorManager.executeWithCoroutine(
+                    filename,
+                    filter,
+                    tasks,
+                ) { name, scheme, jobs -> executor.withCoroutinesRows(name, scheme, jobs) }
             } else {
                 val files = file.listFiles()?.map { it.absolutePath } ?: emptyList()
-                ExecutorManager.executeWithCoroutine(files, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesRows(name, scheme, jobs) }
+                ExecutorManager.executeWithCoroutine(
+                    files,
+                    filter,
+                    tasks,
+                ) { name, scheme, jobs -> executor.withCoroutinesRows(name, scheme, jobs) }
             }
         }
     }
@@ -83,10 +101,18 @@ fun main(args: Array<String>) {
             val file = File(filename)
             require(file.exists()) { "File does not exist: $filename" }
             if (file.isFile) {
-                ExecutorManager.executeWithCoroutine(filename, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesColumn(name, scheme, jobs) }
+                ExecutorManager.executeWithCoroutine(
+                    filename,
+                    filter,
+                    tasks,
+                ) { name, scheme, jobs -> executor.withCoroutinesColumn(name, scheme, jobs) }
             } else {
                 val files = file.listFiles()?.map { it.absolutePath } ?: emptyList()
-                ExecutorManager.executeWithCoroutine(files, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesColumn(name, scheme, jobs) }
+                ExecutorManager.executeWithCoroutine(
+                    files,
+                    filter,
+                    tasks,
+                ) { name, scheme, jobs -> executor.withCoroutinesColumn(name, scheme, jobs) }
             }
         }
     }
@@ -100,10 +126,18 @@ fun main(args: Array<String>) {
             val file = File(filename)
             require(file.exists()) { "File does not exist: $filename" }
             if (file.isFile) {
-                ExecutorManager.executeWithCoroutine(filename, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesSegments(name, scheme, jobs) }
+                ExecutorManager.executeWithCoroutine(
+                    filename,
+                    filter,
+                    tasks,
+                ) { name, scheme, jobs -> executor.withCoroutinesSegments(name, scheme, jobs) }
             } else {
                 val files = file.listFiles()?.map { it.absolutePath } ?: emptyList()
-                ExecutorManager.executeWithCoroutine(files, filter, tasks) { name, scheme, jobs -> executor.withCoroutinesSegments(name, scheme, jobs) }
+                ExecutorManager.executeWithCoroutine(
+                    files,
+                    filter,
+                    tasks,
+                ) { name, scheme, jobs -> executor.withCoroutinesSegments(name, scheme, jobs) }
             }
         }
     }

@@ -35,10 +35,11 @@ open class IOParallel {
     private lateinit var files: List<String>
 
     @Setup
-    fun setup() = runBlocking {
-        scheme = mapNameToScheme(schemeName)
-        files = File(dir).listFiles()?.map { it.absolutePath } ?: emptyList()
-    }
+    fun setup() =
+        runBlocking {
+            scheme = mapNameToScheme(schemeName)
+            files = File(dir).listFiles()?.map { it.absolutePath } ?: emptyList()
+        }
 
     @Benchmark
     fun sequential() {
@@ -47,26 +48,48 @@ open class IOParallel {
 
     @Benchmark
     fun coroutinesRows() {
-        ExecutorManager.executeWithCoroutine(files, scheme, JOBS) { name, scheme, jobs -> org.example.executor.withCoroutinesRows(name, scheme, jobs) }
+        ExecutorManager.executeWithCoroutine(
+            files,
+            scheme,
+            JOBS,
+        ) { name, scheme, jobs -> org.example.executor.withCoroutinesRows(name, scheme, jobs) }
     }
 
     @Benchmark
     fun coroutinesColumns() {
-        ExecutorManager.executeWithCoroutine(files, scheme, JOBS) { name, scheme, jobs -> org.example.executor.withCoroutinesColumn(name, scheme, jobs) }
+        ExecutorManager.executeWithCoroutine(
+            files,
+            scheme,
+            JOBS,
+        ) { name, scheme, jobs -> org.example.executor.withCoroutinesColumn(name, scheme, jobs) }
     }
 
     @Benchmark
     fun coroutinesSegment() {
-        ExecutorManager.executeWithCoroutine(files, scheme, JOBS) { name, scheme, jobs -> org.example.executor.withCoroutinesSegments(name, scheme, jobs) }
+        ExecutorManager.executeWithCoroutine(
+            files,
+            scheme,
+            JOBS,
+        ) { name, scheme, jobs -> org.example.executor.withCoroutinesSegments(name, scheme, jobs) }
     }
 
     @Benchmark
     fun coroutinesChunks() {
-        ExecutorManager.executeWithCoroutine(files, scheme, JOBS, JOBS) { name, scheme, x, y -> org.example.executor.withCoroutinesChunk(name, scheme, x, y) }
+        ExecutorManager.executeWithCoroutine(
+            files,
+            scheme,
+            JOBS,
+            JOBS,
+        ) { name, scheme, x, y -> org.example.executor.withCoroutinesChunk(name, scheme, x, y) }
     }
 
     @Benchmark
     fun coroutinesByPixel() {
-        ExecutorManager.executeWithCoroutine(files, scheme, null, null) { name, scheme, x, y -> org.example.executor.withCoroutinesChunk(name, scheme, x, y) }
+        ExecutorManager.executeWithCoroutine(
+            files,
+            scheme,
+            null,
+            null,
+        ) { name, scheme, x, y -> org.example.executor.withCoroutinesChunk(name, scheme, x, y) }
     }
 }

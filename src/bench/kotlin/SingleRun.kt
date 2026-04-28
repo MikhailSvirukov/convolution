@@ -36,10 +36,11 @@ open class SingleRun {
     private lateinit var loadedImage: LoadedImage
 
     @Setup
-    fun setup() = runBlocking {
-        scheme = mapNameToScheme(schemeName)
-        loadedImage = IOManager.loadRgbImage(img)
-    }
+    fun setup() =
+        runBlocking {
+            scheme = mapNameToScheme(schemeName)
+            loadedImage = IOManager.loadRgbImage(img)
+        }
 
     @Benchmark
     fun sequential() {
@@ -69,6 +70,7 @@ open class SingleRun {
         runBlocking {
             Computation.withCoroutinesChunk(loadedImage, scheme, JOBS, JOBS)
         }
+
     @Benchmark
     fun coroutinesByPixel() =
         runBlocking {

@@ -100,7 +100,7 @@ class ComputationTest {
 
     @ParameterizedTest(name = "{0} x {1} with enlarging filter by {2}")
     @MethodSource("enlargeFilterCases")
-    fun `apply filer with zeroes`(
+    suspend fun `apply filer with zeroes`(
         imagePath: String,
         filter: Scheme,
         enlarge: Int,
