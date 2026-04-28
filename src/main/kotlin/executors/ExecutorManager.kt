@@ -1,10 +1,9 @@
 package org.example.executors
 
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.example.filters.Scheme
-import java.io.File
 
 // вот здесь просто будет 2 функции - для последовательной обработки группы (следующая ждет предыдущую) + параллельную (submit все и joinAll)
 // по идее 2 параметра - массив имен + ассоциированная лямбда из Executor (ну да, придется сделать перегрузку методов)
@@ -28,7 +27,7 @@ object ExecutorManager {
     }
 
     fun executeWithCoroutine(files: List<String>, scheme: Scheme, jobs: Int?, function: suspend (String, Scheme, Int?) -> Unit) = runBlocking{
-        files.forEach { file -> launch { function(file, scheme, jobs) } }
+        files.map{file -> launch { function(file, scheme, jobs) } }.joinAll()
     }
 
     fun executeWithCoroutine(file: String, scheme: Scheme, jobsx: Int?, jobsy: Int?, function: suspend (String, Scheme, Int?, Int?) -> Unit) = runBlocking {
@@ -36,6 +35,6 @@ object ExecutorManager {
     }
 
     fun executeWithCoroutine(files: List<String>, scheme: Scheme, jobsx: Int?, jobsy: Int?, function: suspend (String, Scheme, Int?, Int?) -> Unit) = runBlocking{
-        files.forEach { file -> launch { function(file, scheme, jobsx, jobsy) } }
+        files.map { file -> launch { function(file, scheme, jobsx, jobsy) } }.joinAll()
     }
 }

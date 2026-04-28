@@ -5,12 +5,9 @@ import org.example.Computation
 import org.example.IOManager
 import org.example.LoadedImage
 import org.example.filters.Scheme
-import org.example.filters.allSchemes
 import org.example.filters.mapNameToScheme
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
-import org.openjdk.jmh.annotations.Fork
-import org.openjdk.jmh.annotations.Level
 import org.openjdk.jmh.annotations.Measurement
 import org.openjdk.jmh.annotations.Mode
 import org.openjdk.jmh.annotations.OutputTimeUnit
@@ -29,9 +26,7 @@ const val JOBS = 8
 @Warmup(iterations = 3)
 @Measurement(iterations = 8)
 open class SingleRun {
-    var schemes = allSchemes()
-
-    @Param("img/bench/snow.jpg", "img/bench/ktulhu.jpg", "img/test")
+    @Param("img/bench/snow.jpg", "img/bench/ktulhu.jpg")
     lateinit var img: String
 
     @Param("blur")
@@ -40,8 +35,8 @@ open class SingleRun {
     private lateinit var scheme: Scheme
     private lateinit var loadedImage: LoadedImage
 
-    @Setup(Level.Trial)
-    suspend fun setup() {
+    @Setup
+    fun setup() = runBlocking {
         scheme = mapNameToScheme(schemeName)
         loadedImage = IOManager.loadRgbImage(img)
     }
@@ -73,5 +68,10 @@ open class SingleRun {
     fun coroutinesChunks() =
         runBlocking {
             Computation.withCoroutinesChunk(loadedImage, scheme, JOBS, JOBS)
+        }
+    @Benchmark
+    fun coroutinesByPixel() =
+        runBlocking {
+            Computation.withCoroutinesChunk(loadedImage, scheme, null, null)
         }
 }
